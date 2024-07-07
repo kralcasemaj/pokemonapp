@@ -1,5 +1,6 @@
 package com.example.pokemonlist.data.pokemon
 
+import com.example.pokemonlist.R
 import com.google.gson.annotations.SerializedName
 
 
@@ -25,5 +26,19 @@ data class Pokemon(
     @SerializedName("stats") var stats: ArrayList<Stats> = arrayListOf(),
     @SerializedName("types") var types: ArrayList<Types> = arrayListOf(),
     @SerializedName("weight") var weight: Int? = null
-
 )
+
+fun Pokemon.color(): Int {
+    val type = types.elementAtOrNull(0)?.type?.name
+
+    return when (type?.lowercase()) {
+        "grass", "bug" -> R.color.poke_light_teal
+        "fire" -> R.color.poke_light_red
+        "water", "fighting", "normal" -> R.color.poke_light_blue
+        "electric", "psychic" -> R.color.poke_light_yellow
+        "poison", "ghost" -> R.color.poke_light_purple
+        "ground", "rock" -> R.color.poke_light_brown
+        "dark" -> R.color.poke_black
+        else -> return R.color.poke_light_blue
+    }
+}
