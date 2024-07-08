@@ -12,15 +12,15 @@ data class Pokemon(
     @SerializedName("forms") var forms: ArrayList<Forms> = arrayListOf(),
     @SerializedName("game_indices") var gameIndices: ArrayList<GameIndices> = arrayListOf(),
     @SerializedName("height") var height: Int? = null,
-    @SerializedName("held_items") var heldItems: ArrayList<String> = arrayListOf(),
+    @SerializedName("held_items") var heldItems: ArrayList<HeldItem> = arrayListOf(),
     @SerializedName("id") var id: Int? = null,
     @SerializedName("is_default") var isDefault: Boolean? = null,
     @SerializedName("location_area_encounters") var locationAreaEncounters: String? = null,
     @SerializedName("moves") var moves: ArrayList<Moves> = arrayListOf(),
     @SerializedName("name") var name: String? = null,
     @SerializedName("order") var order: Int? = null,
-    @SerializedName("past_abilities") var pastAbilities: ArrayList<String> = arrayListOf(),
-    @SerializedName("past_types") var pastTypes: ArrayList<String> = arrayListOf(),
+    @SerializedName("past_abilities") var pastAbilities: ArrayList<PastAbility> = arrayListOf(),
+    @SerializedName("past_types") var pastTypes: ArrayList<PastType> = arrayListOf(),
     @SerializedName("species") var species: Species? = Species(),
     @SerializedName("sprites") var sprites: Sprites? = Sprites(),
     @SerializedName("stats") var stats: ArrayList<Stats> = arrayListOf(),
@@ -32,12 +32,18 @@ fun Pokemon.color(): Int {
     val type = types.elementAtOrNull(0)?.type?.name
 
     return when (type?.lowercase()) {
-        "grass", "bug" -> R.color.poke_light_teal
+        "grass" -> R.color.poke_light_teal
+        "bug" -> R.color.poke_bug_green
         "fire" -> R.color.poke_light_red
-        "water", "fighting", "normal" -> R.color.poke_light_blue
-        "electric", "psychic" -> R.color.poke_light_yellow
-        "poison", "ghost" -> R.color.poke_light_purple
-        "ground", "rock" -> R.color.poke_light_brown
+        "normal" -> R.color.poke_light_grey
+        "fighting" -> R.color.poke_light_orange
+        "water" -> R.color.poke_light_blue
+        "electric" -> R.color.poke_light_yellow
+        "psychic" -> R.color.poke_dark_pink
+        "poison" -> R.color.poke_light_purple
+        "ghost" -> R.color.poke_ghost_purple
+        "ground" -> R.color.poke_light_brown
+        "rock" -> R.color.poke_light_beige
         "dark" -> R.color.poke_black
         else -> return R.color.poke_light_blue
     }

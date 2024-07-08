@@ -63,20 +63,22 @@ interface PokemonDetails {
             pokemonListIem: PokemonListItem,
             viewModel: PokemonViewModel = viewModel()
         ) {
-            val pokemon by viewModel.pokemonDetails.observeAsState()
+            val pokemonMap by viewModel.pokemonDetails.observeAsState()
 
-            viewModel.getPokemonDetails(pokemonListIem.url)
+            viewModel.getPokemonDetails(pokemonListIem)
 
-            pokemon?.let {
-                Surface(color = colorResource(it.color())) {
-                    Box {
-                        RoundedRectangleDecoration()
-                        DottedDecoration()
-                        RotatingPokeBall()
-                        HeaderLeft(it)
-                        HeaderRight(it)
-                        CardContent(it)
-                        PokemonImage(it)
+            pokemonMap?.let { map ->
+                map[pokemonListIem.name]?.let {
+                    Surface(color = colorResource(it.color())) {
+                        Box {
+                            RoundedRectangleDecoration()
+                            DottedDecoration()
+                            RotatingPokeBall()
+                            HeaderLeft(it)
+                            HeaderRight(it)
+                            CardContent(it)
+                            PokemonImage(it)
+                        }
                     }
                 }
             }

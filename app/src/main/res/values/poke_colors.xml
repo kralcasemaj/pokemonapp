@@ -6,8 +6,14 @@
     <color name="poke_light_blue">#58ABF6</color>
     <color name="poke_light_brown">#CA8179</color>
     <color name="poke_light_purple">#9F5BBA</color>
+    <color name="poke_ghost_purple">#704171</color>
     <color name="poke_light_red">#F7786B</color>
+    <color name="poke_light_beige">#AEA880</color>
     <color name="poke_light_teal">#2CDAB1</color>
+    <color name="poke_bug_green">#91A118</color>
+    <color name="poke_light_grey">#A0A19F</color>
+    <color name="poke_dark_pink">#EF417A</color>
+    <color name="poke_light_orange">#FF8001</color>
     <color name="poke_light_yellow">#FFCE4B</color>
     <color name="poke_purple">#7C538C</color>
     <color name="poke_red">#FA6555</color>

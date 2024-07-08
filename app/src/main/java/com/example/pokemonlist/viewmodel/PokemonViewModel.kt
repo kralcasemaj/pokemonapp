@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,39 +27,43 @@ class PokemonViewModel @Inject constructor(
 
     val errorMessage = MutableLiveData<String>()
     val pokemonList = MutableLiveData<List<PokemonListItem>>()
-    val pokemonDetails = MutableLiveData<Pokemon>()
+    val pokemonDetails = MutableLiveData<ConcurrentHashMap<String, Pokemon>>(ConcurrentHashMap())
+    private val pokemonMap = ConcurrentHashMap<String, Pokemon>()
     val state = MutableLiveData(State.Initialised)
     var job: Job? = null
 
-    fun getPokemonList() {
-        job = viewModelScope.launch {
-            state.postValue(State.Loading)
-            val response = pokemonAPI.getPokemonList()
-            withContext(Dispatchers.Main) {
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        pokemonList.postValue(it.results)
-                        state.postValue(State.Result)
+    fun getPokemonList(reload: Boolean = false) {
+        if (pokemonList.value.isNullOrEmpty() || reload) {
+            job = viewModelScope.launch {
+                state.postValue(State.Loading)
+                val response = pokemonAPI.getPokemonList()
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        response.body()?.let {
+                            pokemonList.postValue(it.results)
+                            state.postValue(State.Result)
+                        }
+                    } else {
+                        onError("Error : ${response.message()} ")
                     }
-                } else {
-                    onError("Error : ${response.message()} ")
                 }
             }
         }
     }
 
-    fun getPokemonDetails(url: String) {
-        job = viewModelScope.launch {
-            state.postValue(State.Loading)
-            val response = pokemonAPI.getPokemonDetails(url)
-            withContext(Dispatchers.Main) {
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        pokemonDetails.postValue(it)
-                        state.postValue(State.Result)
+    fun getPokemonDetails(pokemonListItem: PokemonListItem, reload: Boolean = false) {
+        if (!pokemonMap.contains(pokemonListItem.name) || reload) {
+            job = viewModelScope.launch {
+                val response = pokemonAPI.getPokemonDetails(pokemonListItem.url)
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        response.body()?.let {
+                            pokemonMap[pokemonListItem.name] = it
+                            pokemonDetails.postValue(pokemonMap)
+                        }
+                    } else {
+                        onError("Error : ${response.message()} ")
                     }
-                } else {
-                    onError("Error : ${response.message()} ")
                 }
             }
         }

@@ -1,6 +1,7 @@
 package com.example.pokemonlist.common
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -47,7 +48,9 @@ fun LoadImageFromSvgUrl(
             .decoderFactory(SvgDecoder.Factory())
             .build(),
         contentDescription = contentDescription,
-        modifier = Modifier.alpha(opacity),
+        modifier = Modifier
+            .alpha(opacity)
+            .fillMaxSize(),
         colorFilter = tint?.let { color ->
             ColorFilter.tint(
                 color = color.copy(alpha = opacity),

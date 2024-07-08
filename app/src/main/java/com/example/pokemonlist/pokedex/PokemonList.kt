@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -18,10 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,7 +33,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,7 +46,6 @@ import com.example.pokemonlist.common.LoadImageFromSvgUrl
 import com.example.pokemonlist.common.PokeBallBackground
 import com.example.pokemonlist.common.PokeBallSmall
 import com.example.pokemonlist.common.PokemonTypeLabels
-import com.example.pokemonlist.common.Title
 import com.example.pokemonlist.common.TypeLabelMetrics.Companion.SMALL
 import com.example.pokemonlist.data.pokemon.Pokemon
 import com.example.pokemonlist.data.pokemon.PokemonListItem
@@ -72,7 +69,10 @@ interface PokemonList {
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Surface(color = MaterialTheme.colorScheme.surface) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
                         PokeBallBackground()
                     }
 
@@ -138,28 +138,17 @@ private fun ErrorView(errorMessage: String) {
 private fun ContentView(
     pokemons: List<PokemonListItem>, onPokemonSelected: (PokemonListItem) -> Unit
 ) {
-    Box {
-        Column(
-            modifier = Modifier
-                .padding(32.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Title(
-                text = "ContentView",
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(
-                    top = 64.dp, bottom = 24.dp
-                )
-            )
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2), contentPadding = PaddingValues(4.dp)
-            ) {
-                items(pokemons) {
-                    PokeDexCard(it, onPokemonSelected)
+    Box(modifier = Modifier.padding(4.dp)) {
+        LazyVerticalGrid(
+            modifier = Modifier,
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(32.dp),
+            content = {
+                items(pokemons.size) {
+                    PokeDexCard(pokemons[it], onPokemonSelected)
                 }
             }
-        }
+        )
     }
 }
 
@@ -170,11 +159,15 @@ fun PokeDexCard(
     viewModel: PokemonViewModel = viewModel()
 ) {
     val pokemon = viewModel.pokemonDetails.observeAsState()
-    pokemon.value?.let {
-        Surface(
-            color = colorResource(it.color()), shape = RoundedCornerShape(16.dp)
-        ) {
-            PokeDexCardContent(it, pokemonListItem, onPokemonSelected)
+    viewModel.getPokemonDetails(pokemonListItem)
+    pokemon.value?.let { map ->
+        map[pokemonListItem.name]?.let { pokemon ->
+            Surface(
+                modifier = Modifier.padding(8.dp),
+                color = colorResource(pokemon.color()), shape = RoundedCornerShape(16.dp)
+            ) {
+                PokeDexCardContent(pokemon, pokemonListItem, onPokemonSelected)
+            }
         }
     }
 }
@@ -185,16 +178,16 @@ private fun PokeDexCardContent(
 ) {
     Box(modifier = Modifier
         .height(120.dp)
-        .fillMaxWidth()
         .clickable { onPokemonSelected(pokemonListItem) }) {
         Column(modifier = Modifier.padding(top = 8.dp, start = 12.dp)) {
-            PokemonName(pokemon.name)
+            PokemonName(pokemon.name?.capitalize(Locale.current))
             PokemonTypeLabels(pokemon.types.map { it.type?.name ?: "" }.toList(), SMALL)
         }
 
         Box(
-            contentAlignment = Alignment.TopEnd,
-            modifier = Modifier.padding(top = 8.dp, end = 12.dp)
+            modifier = Modifier
+                .padding(top = 8.dp, end = 12.dp)
+                .align(Alignment.TopEnd)
         ) {
             PokemonId(pokemon.id.toString())
         }
@@ -204,6 +197,7 @@ private fun PokeDexCardContent(
             modifier = Modifier
                 .offset(x = 5.dp, y = 10.dp)
                 .size(96.dp)
+                .align(Alignment.TopEnd)
         ) {
             PokeBallSmall(
                 Color.White, 0.25f
@@ -212,10 +206,10 @@ private fun PokeDexCardContent(
 
         pokemon.sprites?.other?.dreamWorld?.frontDefault?.let { imageUrl ->
             Box(
-                contentAlignment = Alignment.BottomEnd,
                 modifier = Modifier
-                    .padding(bottom = 8.dp, end = 8.dp)
+                    .align(Alignment.BottomEnd)
                     .size(72.dp)
+                    .padding(bottom = 8.dp, end = 8.dp)
             ) {
                 LoadImageFromSvgUrl(imageUrl)
             }
