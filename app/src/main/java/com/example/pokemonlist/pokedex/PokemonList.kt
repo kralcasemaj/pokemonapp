@@ -63,7 +63,6 @@ interface PokemonList {
         ) {
             val viewModelState by viewModel.loadingState.observeAsState()
             val errorMessage by viewModel.errorMessageLiveData.observeAsState()
-            val pokemonList by viewModel.pokemonListLiveData.observeAsState()
 
             viewModel.getPokemonList()
 
