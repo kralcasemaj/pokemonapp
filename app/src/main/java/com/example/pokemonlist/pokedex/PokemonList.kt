@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
@@ -97,7 +96,10 @@ interface PokemonList {
 
 @Composable
 private fun LoadingView() {
-    Box {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
         val label = "LoadingView"
         val infiniteTransition = rememberInfiniteTransition(label)
         val angle by infiniteTransition.animateFloat(
@@ -232,9 +234,12 @@ private fun PokemonName(text: String?) {
 @Composable
 private fun PokemonId(text: String?) {
     Text(
-        text = text ?: "MissingNo", // oh no
-        modifier = Modifier.alpha(0.1f), style = TextStyle(
-            fontFamily = appFontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp
+        text = text ?: "MissingNo",
+        style = TextStyle(
+            color = colorResource(R.color.white_1000),
+            fontFamily = appFontFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp
         )
     )
 }

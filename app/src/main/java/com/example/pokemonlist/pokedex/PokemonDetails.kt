@@ -11,10 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -28,19 +25,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pokemonlist.R
 import com.example.pokemonlist.appFontFamily
-import com.example.pokemonlist.common.LoadImageFromResId
 import com.example.pokemonlist.common.LoadImageFromSvgUrl
 import com.example.pokemonlist.common.PokeBallLarge
 import com.example.pokemonlist.common.PokemonTypeLabels
@@ -51,8 +48,8 @@ import com.example.pokemonlist.data.pokemon.PokemonListItem
 import com.example.pokemonlist.data.pokemon.color
 import com.example.pokemonlist.pokedex.section.AbilitiesSection
 import com.example.pokemonlist.pokedex.section.BaseStatsSection
-import com.example.pokemonlist.pokedex.section.EvolutionSection
 import com.example.pokemonlist.pokedex.section.MovesSection
+import com.example.pokemonlist.pokedex.section.Other
 import com.example.pokemonlist.viewmodel.PokemonViewModel
 
 interface PokemonDetails {
@@ -71,8 +68,6 @@ interface PokemonDetails {
                 map[pokemonListIem.name]?.let {
                     Surface(color = colorResource(it.color())) {
                         Box {
-                            RoundedRectangleDecoration()
-                            DottedDecoration()
                             RotatingPokeBall()
                             HeaderLeft(it)
                             HeaderRight(it)
@@ -87,46 +82,13 @@ interface PokemonDetails {
 }
 
 @Composable
-private fun RoundedRectangleDecoration() {
-    Box(
-        contentAlignment = Alignment.TopStart,
-        modifier = Modifier.offset(x = (-60).dp, y = (-50).dp)
-    ) {
-        Surface(
-            color = Color(0x22FFFFFF), shape = RoundedCornerShape(32.dp)
-        ) {
-            Spacer(
-                modifier = Modifier
-                    .height(150.dp)
-                    .width(150.dp)
-                    .rotate(-20f)
-            )
-        }
-    }
-
-}
-
-@Composable
-private fun DottedDecoration() {
-    Box(
-        contentAlignment = Alignment.TopEnd, modifier = Modifier
-            .padding(
-                top = 4.dp, end = 100.dp
-            )
-            .width(63.dp)
-            .height(34.dp)
-    ) {
-        LoadImageFromResId(imageResId = R.drawable.dotted, opacity = 0.3f)
-    }
-}
-
-@Composable
 private fun RotatingPokeBall() {
     Box(
-        contentAlignment = Alignment.TopCenter,
+        contentAlignment = Alignment.Center,
         modifier = Modifier
             .padding(top = 140.dp)
-            .size(200.dp)
+            .height(200.dp)
+            .fillMaxWidth()
     ) {
         val label = "rotatePokeball"
         val infiniteTransition = rememberInfiniteTransition(label)
@@ -143,24 +105,28 @@ private fun RotatingPokeBall() {
                 rotationZ = angle
             }
         PokeBallLarge(
-            tint = colorResource(R.color.grey_100), opacity = 0.25f, modifier = modifier
+            tint = colorResource(R.color.grey_100),
+            opacity = 0.25f,
+            modifier = modifier.align(Alignment.Center)
         )
     }
+
 }
 
 @Composable
 private fun HeaderRight(pokemon: Pokemon) {
     Box(
         contentAlignment = Alignment.TopEnd, modifier = Modifier
-            .padding(top = 52.dp)
+            .padding(top = 40.dp)
             .padding(32.dp)
+            .fillMaxWidth()
     ) {
-        Column {
+        Column(modifier = Modifier.align(Alignment.TopEnd)) {
             Text(
                 textAlign = TextAlign.End, text = pokemon.id.toString(), style = TextStyle(
                     fontFamily = appFontFamily,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
+                    fontSize = 24.sp,
                     color = Color.White
                 )
             )
@@ -178,7 +144,9 @@ private fun HeaderLeft(pokemon: Pokemon) {
     ) {
         Column {
             Title(
-                text = pokemon.name ?: "", color = Color.White
+                text = pokemon.name?.capitalize(Locale.current) ?: "",
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             pokemon.types.map { type -> type.type?.name ?: "" }.let {
@@ -191,7 +159,7 @@ private fun HeaderLeft(pokemon: Pokemon) {
 }
 
 private enum class Sections(val title: String) {
-    Abilities("Abilities"), BaseStats("Base stats"), Evolution("Evolution"), Moves("Moves")
+    Abilities("Abilities"), BaseStats("Base stats"), Moves("Moves"), Other("Other")
 }
 
 @Composable
@@ -212,7 +180,9 @@ private fun CardContent(pokemon: Pokemon) {
                 var section by remember { mutableStateOf(Sections.BaseStats) }
                 TabRow(selectedTabIndex = section.ordinal) {
                     sectionTitles.forEachIndexed { index, text ->
-                        Tab(text = { Text(text) },
+                        Tab(
+                            text = { Text(text = text, fontSize = 12.sp) },
+                            selectedContentColor = Color.Black,
                             selected = section.ordinal == index,
                             onClick = { section = Sections.entries[index] })
                     }
@@ -222,8 +192,8 @@ private fun CardContent(pokemon: Pokemon) {
                     when (section) {
                         Sections.Abilities -> AbilitiesSection(pokemon)
                         Sections.BaseStats -> BaseStatsSection(pokemon)
-                        Sections.Evolution -> EvolutionSection(pokemon)
                         Sections.Moves -> MovesSection(pokemon)
+                        Sections.Other -> Other(pokemon)
                     }
                 }
             }
@@ -235,10 +205,11 @@ private fun CardContent(pokemon: Pokemon) {
 private fun PokemonImage(pokemon: Pokemon) {
     pokemon.sprites?.other?.dreamWorld?.frontDefault?.let { imageUrl ->
         Box(
-            contentAlignment = Alignment.TopCenter,
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .padding(top = 140.dp)
-                .size(200.dp)
+                .height(140.dp)
+                .fillMaxWidth()
         ) {
             LoadImageFromSvgUrl(imageUrl)
         }

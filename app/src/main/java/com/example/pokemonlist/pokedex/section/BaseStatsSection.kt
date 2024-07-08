@@ -1,6 +1,5 @@
 package com.example.pokemonlist.pokedex.section
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,7 +45,6 @@ fun BaseStatsSection(pokemon: Pokemon) {
         Stat("Speed", pokemon.stats.firstOrNull { it.stat?.name.equals("speed") }?.baseStat),
         Stat("Total", pokemon.stats.sumOf { it.baseStat ?: 0 }, 600)
     )
-
     StatsTable(stats)
 }
 
@@ -64,8 +62,7 @@ private fun StatsTable(stats: List<Stat>) {
                     text = stat.label,
                     Modifier
                         .padding(end = 16.dp, bottom = 8.dp)
-                        .weight(1f)
-                        .border(1.dp, Color.Black),
+                        .weight(1f),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = colorResource(R.color.grey_900)
                     )
@@ -74,8 +71,7 @@ private fun StatsTable(stats: List<Stat>) {
                     text = stat.value.toString(),
                     Modifier
                         .padding(end = 16.dp, bottom = 8.dp)
-                        .weight(1f)
-                        .border(1.dp, Color.Black),
+                        .weight(1f),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
