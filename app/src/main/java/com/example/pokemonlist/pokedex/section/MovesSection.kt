@@ -38,7 +38,7 @@ fun MovesSection(pokemon: Pokemon) {
         }
     Column {
         Text(
-            text = "Moves learned at each level in Red/Blue: ",
+            text = "Moves learned by level in Red/Blue: ",
             color = Color.Black,
             fontWeight = FontWeight.Bold
         )

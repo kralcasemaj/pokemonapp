@@ -60,7 +60,7 @@ interface PokemonDetails {
             pokemonListIem: PokemonListItem,
             viewModel: PokemonViewModel = viewModel()
         ) {
-            val pokemonMap by viewModel.pokemonDetails.observeAsState()
+            val pokemonMap by viewModel.pokemonDetailsLiveData.observeAsState()
 
             viewModel.getPokemonDetails(pokemonListIem)
 

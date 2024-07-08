@@ -30,20 +30,21 @@ class PokemonViewModel @Inject constructor(
         Result
     }
 
-    val errorMessage = MutableLiveData<String>()
-    val pokemonList = MutableLiveData<List<PokemonListItem>>()
-    val _pokemonList: MutableList<PokemonListItem> = ArrayList()
-    val pokemonDetails = MutableLiveData<ConcurrentHashMap<String, Pokemon>>(ConcurrentHashMap())
-    private val pokemonMap = ConcurrentHashMap<String, Pokemon>()
-    val state = MutableLiveData(State.Initialised)
+    val errorMessageLiveData = MutableLiveData<String>()
+    val pokemonListLiveData = MutableLiveData<List<PokemonListItem>>()
+    private val pokemonList: MutableList<PokemonListItem> = ArrayList()
+    val pokemonDetailsLiveData =
+        MutableLiveData<ConcurrentHashMap<String, Pokemon>>(ConcurrentHashMap())
+    private val pokemonDetailsCache = ConcurrentHashMap<String, Pokemon>()
+    val loadingState = MutableLiveData(State.Initialised)
     private var job: Job? = null
 
-    private val _queryText = MutableStateFlow("")
-    val queryText = _queryText.asStateFlow()
+    private val searchQueryStateFlow = MutableStateFlow("")
+    val searchQueryText = searchQueryStateFlow.asStateFlow()
 
-    private var _pokemons = MutableStateFlow(_pokemonList)
-    var pokemons = queryText
-        .combine(_pokemons) { query, pokemon ->
+    private var pokemonListStateFlow = MutableStateFlow(pokemonList)
+    var pokemons = searchQueryText
+        .combine(pokemonListStateFlow) { query, pokemon ->
             if (query.isBlank()) {
                 pokemon
             } else {
@@ -52,25 +53,25 @@ class PokemonViewModel @Inject constructor(
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            _pokemons.value
+            pokemonListStateFlow.value
         )
 
     fun onQueryTextChanged(query: String) {
-        _queryText.value = query
+        searchQueryStateFlow.value = query
     }
 
     fun getPokemonList(reload: Boolean = false) {
-        if (_pokemonList.isEmpty() || reload) {
+        if (pokemonList.isEmpty() || reload) {
             job = viewModelScope.launch {
-                state.postValue(State.Loading)
+                loadingState.postValue(State.Loading)
                 val response = pokemonAPI.getPokemonList()
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            _pokemonList.clear()
-                            _pokemonList.addAll(it.results)
-                            pokemonList.postValue(_pokemonList)
-                            state.postValue(State.Result)
+                            pokemonList.clear()
+                            pokemonList.addAll(it.results)
+                            pokemonListLiveData.postValue(pokemonList)
+                            loadingState.postValue(State.Result)
                         }
                     } else {
                         onError("Error : ${response.message()} ")
@@ -81,14 +82,14 @@ class PokemonViewModel @Inject constructor(
     }
 
     fun getPokemonDetails(pokemonListItem: PokemonListItem, reload: Boolean = false) {
-        if (!pokemonMap.contains(pokemonListItem.name) || reload) {
+        if (!pokemonDetailsCache.contains(pokemonListItem.name) || reload) {
             job = viewModelScope.launch {
                 val response = pokemonAPI.getPokemonDetails(pokemonListItem.url)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            pokemonMap[pokemonListItem.name] = it
-                            pokemonDetails.postValue(pokemonMap)
+                            pokemonDetailsCache[pokemonListItem.name] = it
+                            pokemonDetailsLiveData.postValue(pokemonDetailsCache)
                         }
                     } else {
                         onError("Error : ${response.message()} ")
@@ -99,13 +100,13 @@ class PokemonViewModel @Inject constructor(
     }
 
     private fun onError(message: String) {
-        errorMessage.value = message
-        state.postValue(State.Error)
+        errorMessageLiveData.value = message
+        loadingState.postValue(State.Error)
     }
 
     override fun onCleared() {
         super.onCleared()
         job?.cancel()
-        state.postValue(State.Initialised)
+        loadingState.postValue(State.Initialised)
     }
 }

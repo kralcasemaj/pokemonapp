@@ -61,9 +61,9 @@ interface PokemonList {
         fun Content(
             onPokemonSelected: (PokemonListItem) -> Unit, viewModel: PokemonViewModel = viewModel()
         ) {
-            val viewModelState by viewModel.state.observeAsState()
-            val errorMessage by viewModel.errorMessage.observeAsState()
-            val pokemonList by viewModel.pokemonList.observeAsState()
+            val viewModelState by viewModel.loadingState.observeAsState()
+            val errorMessage by viewModel.errorMessageLiveData.observeAsState()
+            val pokemonList by viewModel.pokemonListLiveData.observeAsState()
 
             viewModel.getPokemonList()
 
@@ -143,7 +143,7 @@ private fun ErrorView(errorMessage: String) {
 private fun ContentView(
     onPokemonSelected: (PokemonListItem) -> Unit, viewModel: PokemonViewModel = viewModel()
 ) {
-    val searchQuery by viewModel.queryText.collectAsState()
+    val searchQuery by viewModel.searchQueryText.collectAsState()
     val pokemonsSearched by viewModel.pokemons.collectAsState()
 
     pokemonsSearched.let { pokemons ->
@@ -178,7 +178,7 @@ fun PokeDexCard(
     onPokemonSelected: (PokemonListItem) -> Unit,
     viewModel: PokemonViewModel = viewModel()
 ) {
-    val pokemon = viewModel.pokemonDetails.observeAsState()
+    val pokemon = viewModel.pokemonDetailsLiveData.observeAsState()
     viewModel.getPokemonDetails(pokemonListItem)
     pokemon.value?.let { map ->
         map[pokemonListItem.name]?.let { pokemon ->
