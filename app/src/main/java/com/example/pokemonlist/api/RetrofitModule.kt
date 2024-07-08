@@ -21,8 +21,8 @@ object RetrofitModule {
     @Singleton
     fun provideRetrofit(baseUrl: String): Retrofit {
         val client = OkHttpClient.Builder()
-            .connectTimeout(2000L, TimeUnit.MILLISECONDS)
-            .readTimeout(2000L, TimeUnit.MILLISECONDS)
+            .connectTimeout(30000L, TimeUnit.MILLISECONDS)
+            .readTimeout(30000L, TimeUnit.MILLISECONDS)
             .build()
         return Retrofit.Builder()
             .baseUrl(baseUrl)
