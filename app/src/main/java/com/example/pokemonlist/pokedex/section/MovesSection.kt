@@ -20,8 +20,6 @@ import com.example.pokemonlist.data.pokemon.Pokemon
 
 @Composable
 fun MovesSection(pokemon: Pokemon) {
-    val moveLevelMap = HashMap<String, Int>()
-
     val moves =
         pokemon.moves.filter { move ->
             move.versionGroupDetails.any { vg ->
