@@ -9,6 +9,11 @@ import com.example.pokemonlist.data.pokemon.PokemonListItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
@@ -27,20 +32,44 @@ class PokemonViewModel @Inject constructor(
 
     val errorMessage = MutableLiveData<String>()
     val pokemonList = MutableLiveData<List<PokemonListItem>>()
+    val _pokemonList: MutableList<PokemonListItem> = ArrayList()
     val pokemonDetails = MutableLiveData<ConcurrentHashMap<String, Pokemon>>(ConcurrentHashMap())
     private val pokemonMap = ConcurrentHashMap<String, Pokemon>()
     val state = MutableLiveData(State.Initialised)
-    var job: Job? = null
+    private var job: Job? = null
+
+    private val _queryText = MutableStateFlow("")
+    val queryText = _queryText.asStateFlow()
+
+    private var _pokemons = MutableStateFlow(_pokemonList)
+    var pokemons = queryText
+        .combine(_pokemons) { query, pokemon ->
+            if (query.isBlank()) {
+                pokemon
+            } else {
+                pokemon.filter { it.isMatchWithQuery(query) }
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            _pokemons.value
+        )
+
+    fun onQueryTextChanged(query: String) {
+        _queryText.value = query
+    }
 
     fun getPokemonList(reload: Boolean = false) {
-        if (pokemonList.value.isNullOrEmpty() || reload) {
+        if (_pokemonList.isEmpty() || reload) {
             job = viewModelScope.launch {
                 state.postValue(State.Loading)
                 val response = pokemonAPI.getPokemonList()
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            pokemonList.postValue(it.results)
+                            _pokemonList.clear()
+                            _pokemonList.addAll(it.results)
+                            pokemonList.postValue(_pokemonList)
                             state.postValue(State.Result)
                         }
                     } else {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -45,6 +47,7 @@ import com.example.pokemonlist.common.LoadImageFromSvgUrl
 import com.example.pokemonlist.common.PokeBallBackground
 import com.example.pokemonlist.common.PokeBallSmall
 import com.example.pokemonlist.common.PokemonTypeLabels
+import com.example.pokemonlist.common.SearchField
 import com.example.pokemonlist.common.TypeLabelMetrics.Companion.SMALL
 import com.example.pokemonlist.data.pokemon.Pokemon
 import com.example.pokemonlist.data.pokemon.PokemonListItem
@@ -83,7 +86,7 @@ interface PokemonList {
                                 PokemonViewModel.State.Initialised, PokemonViewModel.State.Loading -> LoadingView()
                                 PokemonViewModel.State.Error -> ErrorView(errorMessage!!)
                                 PokemonViewModel.State.Result -> ContentView(
-                                    pokemonList!!, onPokemonSelected
+                                    onPokemonSelected
                                 )
                             }
                         }
@@ -138,19 +141,34 @@ private fun ErrorView(errorMessage: String) {
 
 @Composable
 private fun ContentView(
-    pokemons: List<PokemonListItem>, onPokemonSelected: (PokemonListItem) -> Unit
+    onPokemonSelected: (PokemonListItem) -> Unit, viewModel: PokemonViewModel = viewModel()
 ) {
-    Box(modifier = Modifier.padding(4.dp)) {
-        LazyVerticalGrid(
-            modifier = Modifier,
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(32.dp),
-            content = {
-                items(pokemons.size) {
-                    PokeDexCard(pokemons[it], onPokemonSelected)
-                }
+    val searchQuery by viewModel.queryText.collectAsState()
+    val pokemonsSearched by viewModel.pokemons.collectAsState()
+
+    pokemonsSearched.let { pokemons ->
+        Column {
+            SearchField(
+                searchQuery = searchQuery,
+                onQueryChanged = viewModel::onQueryTextChanged,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 40.dp, bottom = 20.dp)
+            )
+
+            Box(modifier = Modifier.padding(4.dp)) {
+                LazyVerticalGrid(
+                    modifier = Modifier,
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(32.dp),
+                    content = {
+                        items(pokemons.size) {
+                            PokeDexCard(pokemons[it], onPokemonSelected)
+                        }
+                    }
+                )
             }
-        )
+        }
     }
 }
 
