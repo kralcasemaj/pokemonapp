@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
@@ -83,7 +84,8 @@ interface PokemonList {
                             PokemonViewModel.State.Initialised, PokemonViewModel.State.Loading -> LoadingView()
                             PokemonViewModel.State.Error -> ErrorView(errorMessage!!)
                             PokemonViewModel.State.Result -> ContentView(
-                                onPokemonSelected
+                                onPokemonSelected,
+                                viewModel
                             )
                         }
                     }
@@ -95,7 +97,7 @@ interface PokemonList {
 }
 
 @Composable
-private fun LoadingView() {
+fun LoadingView() {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
@@ -114,6 +116,7 @@ private fun LoadingView() {
             modifier = Modifier
                 .width(50.dp)
                 .height(50.dp)
+                .testTag("LoadingView")
         ) {
             PokeBallSmall(tint = colorResource(R.color.poke_light_red), modifier = modifier)
         }
@@ -121,7 +124,7 @@ private fun LoadingView() {
 }
 
 @Composable
-private fun ErrorView(errorMessage: String) {
+fun ErrorView(errorMessage: String) {
     Box {
         Column {
             Text(
@@ -138,7 +141,8 @@ private fun ErrorView(errorMessage: String) {
 
 @Composable
 private fun ContentView(
-    onPokemonSelected: (PokemonListItem) -> Unit, viewModel: PokemonViewModel = viewModel()
+    onPokemonSelected: (PokemonListItem) -> Unit,
+    viewModel: PokemonViewModel = viewModel()
 ) {
     val searchQuery by viewModel.searchQueryText.collectAsState()
     val pokemonsSearched by viewModel.pokemons.collectAsState()
@@ -160,7 +164,7 @@ private fun ContentView(
                     contentPadding = PaddingValues(32.dp),
                     content = {
                         items(pokemons.size) {
-                            PokeDexCard(pokemons[it], onPokemonSelected)
+                            PokeDexCard(pokemons[it], onPokemonSelected, viewModel)
                         }
                     }
                 )
@@ -235,7 +239,7 @@ private fun PokeDexCardContent(
 }
 
 @Composable
-private fun PokemonName(text: String?) {
+fun PokemonName(text: String?) {
     Text(
         text = text ?: "MissingName", style = TextStyle(
             fontFamily = appFontFamily,
@@ -247,7 +251,7 @@ private fun PokemonName(text: String?) {
 }
 
 @Composable
-private fun PokemonId(text: String?) {
+fun PokemonId(text: String?) {
     Text(
         text = text ?: "MissingNo",
         style = TextStyle(
