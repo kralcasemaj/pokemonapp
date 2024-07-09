@@ -18,8 +18,8 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,15 +37,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pokemonlist.R
+import com.example.pokemonlist.model.pokemon.Pokemon
+import com.example.pokemonlist.model.pokemon.PokemonListItem
+import com.example.pokemonlist.model.pokemon.color
 import com.example.pokemonlist.ui.appFontFamily
 import com.example.pokemonlist.ui.common.LoadImageFromSvgUrl
 import com.example.pokemonlist.ui.common.PokeBallLarge
 import com.example.pokemonlist.ui.common.PokemonTypeLabels
 import com.example.pokemonlist.ui.common.Title
 import com.example.pokemonlist.ui.common.TypeLabelMetrics.Companion.MEDIUM
-import com.example.pokemonlist.model.pokemon.Pokemon
-import com.example.pokemonlist.model.pokemon.PokemonListItem
-import com.example.pokemonlist.model.pokemon.color
 import com.example.pokemonlist.ui.pokedex.section.AbilitiesSection
 import com.example.pokemonlist.ui.pokedex.section.BaseStatsSection
 import com.example.pokemonlist.ui.pokedex.section.MovesSection
@@ -60,20 +60,18 @@ interface PokemonDetails {
             pokemonListIem: PokemonListItem,
             viewModel: PokemonViewModel = viewModel()
         ) {
-            val pokemonMap by viewModel.pokemonDetailsLiveData.observeAsState()
+            val pokemonMap by viewModel.pokemonDetails.collectAsState()
 
             viewModel.getPokemonDetails(pokemonListIem)
 
-            pokemonMap?.let { map ->
-                map[pokemonListIem.name]?.let {
-                    Surface(color = colorResource(it.color())) {
-                        Box {
-                            RotatingPokeBall()
-                            HeaderLeft(it)
-                            HeaderRight(it)
-                            CardContent(it)
-                            PokemonImage(it)
-                        }
+            pokemonMap[pokemonListIem.name]?.let {
+                Surface(color = colorResource(it.color())) {
+                    Box {
+                        RotatingPokeBall()
+                        HeaderLeft(it)
+                        HeaderRight(it)
+                        CardContent(it)
+                        PokemonImage(it)
                     }
                 }
             }

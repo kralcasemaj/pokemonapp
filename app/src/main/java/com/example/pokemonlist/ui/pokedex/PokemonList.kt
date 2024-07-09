@@ -25,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pokemonlist.R
+import com.example.pokemonlist.model.pokemon.Pokemon
+import com.example.pokemonlist.model.pokemon.PokemonListItem
+import com.example.pokemonlist.model.pokemon.color
 import com.example.pokemonlist.ui.appFontFamily
 import com.example.pokemonlist.ui.common.LoadImageFromSvgUrl
 import com.example.pokemonlist.ui.common.PokeBallBackground
@@ -49,9 +51,6 @@ import com.example.pokemonlist.ui.common.PokeBallSmall
 import com.example.pokemonlist.ui.common.PokemonTypeLabels
 import com.example.pokemonlist.ui.common.SearchField
 import com.example.pokemonlist.ui.common.TypeLabelMetrics.Companion.SMALL
-import com.example.pokemonlist.model.pokemon.Pokemon
-import com.example.pokemonlist.model.pokemon.PokemonListItem
-import com.example.pokemonlist.model.pokemon.color
 import com.example.pokemonlist.ui.viewmodel.PokemonViewModel
 
 interface PokemonList {
@@ -61,37 +60,36 @@ interface PokemonList {
         fun Content(
             onPokemonSelected: (PokemonListItem) -> Unit, viewModel: PokemonViewModel = viewModel()
         ) {
-            val viewModelState by viewModel.loadingState.observeAsState()
-            val errorMessage by viewModel.errorMessageLiveData.observeAsState()
+            val viewModelState by viewModel.loadingState.collectAsState()
+            val errorMessage by viewModel.errorMessage.collectAsState()
 
             viewModel.getPokemonList()
 
-            viewModelState?.let { state ->
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Surface(
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    PokeBallBackground()
+                }
+
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.surface,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        PokeBallBackground()
-                    }
-
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Crossfade(targetState = state, label = "pokemonList") {
-                            when (it) {
-                                PokemonViewModel.State.Initialised, PokemonViewModel.State.Loading -> LoadingView()
-                                PokemonViewModel.State.Error -> ErrorView(errorMessage!!)
-                                PokemonViewModel.State.Result -> ContentView(
-                                    onPokemonSelected
-                                )
-                            }
+                    Crossfade(targetState = viewModelState, label = "pokemonList") {
+                        when (it) {
+                            PokemonViewModel.State.Initialised, PokemonViewModel.State.Loading -> LoadingView()
+                            PokemonViewModel.State.Error -> ErrorView(errorMessage!!)
+                            PokemonViewModel.State.Result -> ContentView(
+                                onPokemonSelected
+                            )
                         }
                     }
                 }
             }
+
         }
     }
 }
@@ -177,16 +175,16 @@ fun PokeDexCard(
     onPokemonSelected: (PokemonListItem) -> Unit,
     viewModel: PokemonViewModel = viewModel()
 ) {
-    val pokemon = viewModel.pokemonDetailsLiveData.observeAsState()
+    val pokemonMap = viewModel.pokemonDetails.collectAsState()
+
     viewModel.getPokemonDetails(pokemonListItem)
-    pokemon.value?.let { map ->
-        map[pokemonListItem.name]?.let { pokemon ->
-            Surface(
-                modifier = Modifier.padding(8.dp),
-                color = colorResource(pokemon.color()), shape = RoundedCornerShape(16.dp)
-            ) {
-                PokeDexCardContent(pokemon, pokemonListItem, onPokemonSelected)
-            }
+
+    pokemonMap.value[pokemonListItem.name]?.let { pokemon ->
+        Surface(
+            modifier = Modifier.padding(8.dp),
+            color = colorResource(pokemon.color()), shape = RoundedCornerShape(16.dp)
+        ) {
+            PokeDexCardContent(pokemon, pokemonListItem, onPokemonSelected)
         }
     }
 }

@@ -45,7 +45,6 @@ dependencies {
     implementation libs.logging.interceptor
     implementation(libs.androidx.activity.compose)
     implementation libs.androidx.core.ktx
-    implementation libs.androidx.lifecycle.livedata
     implementation libs.androidx.ui
     implementation libs.androidx.ui.android
     implementation libs.ui.tooling
@@ -61,7 +60,6 @@ dependencies {
     implementation libs.rxandroid
     implementation libs.hilt.android
     implementation libs.androidx.lifecycle.viewmodel.compose
-    implementation libs.androidx.runtime.livedata
     implementation libs.androidx.appcompat
     implementation libs.logging.interceptor
     kapt libs.hilt.compiler
