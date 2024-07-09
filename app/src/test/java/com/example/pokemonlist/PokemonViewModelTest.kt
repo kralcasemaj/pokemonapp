@@ -18,7 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import okhttp3.ResponseBody
 import org.junit.After
@@ -53,7 +53,7 @@ class PokemonViewModelTest {
     }
 
     @Test
-    fun testGetPokemonList_Success() = runBlockingTest {
+    fun testGetPokemonList_Success() = runTest {
         val mockResponse =
             Response.success(PokemonList(results = listOf(PokemonListItem("Pikachu", "url"))))
         coEvery { pokemonAPI.getPokemonList() } returns mockResponse
@@ -66,7 +66,7 @@ class PokemonViewModelTest {
     }
 
     @Test
-    fun testGetPokemonList_Error() = runBlockingTest {
+    fun testGetPokemonList_Error() = runTest {
         val mockResponse = Response.error<PokemonList>(404, ResponseBody.create(null, ""))
         coEvery { pokemonAPI.getPokemonList() } returns mockResponse
 
@@ -76,7 +76,7 @@ class PokemonViewModelTest {
     }
 
     @Test
-    fun testGetPokemonDetails_Success() = runBlockingTest {
+    fun testGetPokemonDetails_Success() = runTest {
         val mockPokemonListItem = PokemonListItem("Pikachu", "url")
         val mockDetailsResponse = Response.success(
             Pokemon(
@@ -100,7 +100,7 @@ class PokemonViewModelTest {
     }
 
     @Test
-    fun testGetPokemonDetails_Error() = runBlockingTest {
+    fun testGetPokemonDetails_Error() = runTest {
         val mockPokemonListItem = PokemonListItem("Pikachu", "url")
         val mockError = Response.error<Pokemon>(404, ResponseBody.create(null, ""))
         coEvery { pokemonAPI.getPokemonDetails(any()) } returns mockError
