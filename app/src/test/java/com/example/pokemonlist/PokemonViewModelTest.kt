@@ -2,12 +2,18 @@ package com.example.pokemonlist
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.pokemonlist.api.PokemonAPI
+import com.example.pokemonlist.model.pokemon.Pokemon
 import com.example.pokemonlist.model.pokemon.PokemonList
 import com.example.pokemonlist.model.pokemon.PokemonListItem
+import com.example.pokemonlist.model.pokemon.Sprites
+import com.example.pokemonlist.model.pokemon.Type
+import com.example.pokemonlist.model.pokemon.Types
 import com.example.pokemonlist.ui.viewmodel.PokemonViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
 import junit.framework.Assert.assertEquals
+import junit.framework.Assert.assertNotNull
+import junit.framework.Assert.assertNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -66,6 +72,43 @@ class PokemonViewModelTest {
 
         viewModel.getPokemonList()
 
+        assertEquals(PokemonViewModel.State.Error, viewModel.loadingState.value)
+    }
+
+    @Test
+    fun testGetPokemonDetails_Success() = runBlockingTest {
+        val mockPokemonListItem = PokemonListItem("Pikachu", "url")
+        val mockDetailsResponse = Response.success(
+            Pokemon(
+                id = 25,
+                name = "Pikachu",
+                types = arrayListOf(Types(1, Type("Electric"))),
+                sprites = Sprites(),
+            )
+        )
+        coEvery { pokemonAPI.getPokemonDetails(any()) } returns mockDetailsResponse
+
+        viewModel.getPokemonDetails(mockPokemonListItem)
+
+        assertEquals(25, viewModel.pokemonDetails.value["Pikachu"]?.id)
+        assertEquals("Pikachu", viewModel.pokemonDetails.value["Pikachu"]?.name)
+        assertEquals(1, viewModel.pokemonDetails.value["Pikachu"]?.types?.size)
+        assertEquals(
+            "Electric",
+            viewModel.pokemonDetails.value["Pikachu"]?.types?.firstOrNull()?.type?.name
+        )
+    }
+
+    @Test
+    fun testGetPokemonDetails_Error() = runBlockingTest {
+        val mockPokemonListItem = PokemonListItem("Pikachu", "url")
+        val mockError = Response.error<Pokemon>(404, ResponseBody.create(null, ""))
+        coEvery { pokemonAPI.getPokemonDetails(any()) } returns mockError
+
+        viewModel.getPokemonDetails(mockPokemonListItem)
+
+        assertNull(viewModel.pokemonDetails.value["Pikachu"]) // Ensure details are not updated on error
+        assertNotNull(viewModel.errorMessage.value) // Check if error message is set
         assertEquals(PokemonViewModel.State.Error, viewModel.loadingState.value)
     }
 }
