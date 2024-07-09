@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.capitalize
@@ -80,7 +81,7 @@ interface PokemonDetails {
 }
 
 @Composable
-private fun RotatingPokeBall() {
+fun RotatingPokeBall() {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -102,6 +103,7 @@ private fun RotatingPokeBall() {
             .graphicsLayer {
                 rotationZ = angle
             }
+            .testTag("RotatingPokeBall")
         PokeBallLarge(
             tint = colorResource(R.color.grey_100),
             opacity = 0.25f,
@@ -112,7 +114,7 @@ private fun RotatingPokeBall() {
 }
 
 @Composable
-private fun HeaderRight(pokemon: Pokemon) {
+fun HeaderRight(pokemon: Pokemon) {
     Box(
         contentAlignment = Alignment.TopEnd, modifier = Modifier
             .padding(top = 40.dp)
@@ -133,7 +135,7 @@ private fun HeaderRight(pokemon: Pokemon) {
 }
 
 @Composable
-private fun HeaderLeft(pokemon: Pokemon) {
+fun HeaderLeft(pokemon: Pokemon) {
     Box(
         contentAlignment = Alignment.TopStart,
         modifier = Modifier
@@ -161,7 +163,7 @@ private enum class Sections(val title: String) {
 }
 
 @Composable
-private fun CardContent(pokemon: Pokemon) {
+fun CardContent(pokemon: Pokemon) {
     Box(
         contentAlignment = Alignment.TopCenter, modifier = Modifier.padding(top = 300.dp)
     ) {
@@ -200,7 +202,7 @@ private fun CardContent(pokemon: Pokemon) {
 }
 
 @Composable
-private fun PokemonImage(pokemon: Pokemon) {
+fun PokemonImage(pokemon: Pokemon) {
     pokemon.sprites?.other?.dreamWorld?.frontDefault?.let { imageUrl ->
         Box(
             contentAlignment = Alignment.Center,
@@ -209,7 +211,10 @@ private fun PokemonImage(pokemon: Pokemon) {
                 .height(140.dp)
                 .fillMaxWidth()
         ) {
-            LoadImageFromSvgUrl(imageUrl)
+            LoadImageFromSvgUrl(
+                imageUrl,
+                contentDescription = pokemon.name?.capitalize(Locale.current).toString()
+            )
         }
     }
 }
