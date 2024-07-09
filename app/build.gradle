@@ -38,6 +38,9 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion "1.5.13"
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -62,8 +65,13 @@ dependencies {
     implementation libs.androidx.lifecycle.viewmodel.compose
     implementation libs.androidx.appcompat
     implementation libs.logging.interceptor
+
     kapt libs.hilt.compiler
+    kaptTest libs.hilt.android.compiler
+
     testImplementation libs.junit
-    androidTestImplementation libs.androidx.junit
-    androidTestImplementation libs.androidx.espresso.core
+    testImplementation libs.core.testing
+    testImplementation libs.kotlinx.coroutines.test
+    testImplementation libs.mockk
+    testImplementation libs.hilt.android.testing
 }
