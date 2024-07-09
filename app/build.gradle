@@ -63,6 +63,7 @@ dependencies {
     implementation libs.androidx.lifecycle.viewmodel.compose
     implementation libs.androidx.runtime.livedata
     implementation libs.androidx.appcompat
+    implementation libs.logging.interceptor
     kapt libs.hilt.compiler
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
