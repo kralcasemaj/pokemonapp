@@ -41,7 +41,7 @@ class PokemonListTest {
     @Before
     fun setUp() {
         viewModel = PokemonViewModel(pokemonAPI)
-        val mockListResponse =
+        val mockPokemonList =
             Response.success(
                 com.example.pokemonlist.model.pokemon.PokemonList(
                     results = listOf(
@@ -49,7 +49,7 @@ class PokemonListTest {
                     )
                 )
             )
-        val mockDetailsResponse =
+        val mockPokemon =
             Response.success(
                 Pokemon(
                     id = 25,
@@ -59,8 +59,8 @@ class PokemonListTest {
                 )
 
             )
-        coEvery { pokemonAPI.getPokemonList() } returns mockListResponse
-        coEvery { pokemonAPI.getPokemonDetails(any()) } returns mockDetailsResponse
+        coEvery { pokemonAPI.getPokemonList() } returns mockPokemonList
+        coEvery { pokemonAPI.getPokemonDetails(any()) } returns mockPokemon
     }
 
     @Test

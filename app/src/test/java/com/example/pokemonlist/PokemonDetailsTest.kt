@@ -40,19 +40,17 @@ class PokemonDetailsTest {
     private lateinit var viewModel: PokemonViewModel
     private val pokemonAPI = mockk<PokemonAPI>()
     private val mockPokemonListItem = PokemonListItem("Pikachu", "url")
+    private val mockPokemon = Pokemon(
+        id = 25,
+        name = "Pikachu",
+        types = arrayListOf(Types(1, Type("Electric"))),
+        sprites = Sprites(other = Other(dreamWorld = DreamWorld(frontDefault = "url")))
+    )
 
     @Before
     fun setUp() {
         viewModel = PokemonViewModel(pokemonAPI)
-        val mockDetailsResponse =
-            Response.success(
-                Pokemon(
-                    id = 25,
-                    name = "Pikachu",
-                    types = arrayListOf(Types(1, Type("Electric"))),
-                    sprites = Sprites(),
-                )
-            )
+        val mockDetailsResponse = Response.success(mockPokemon)
         coEvery { pokemonAPI.getPokemonDetails(any()) } returns mockDetailsResponse
     }
 
@@ -67,15 +65,8 @@ class PokemonDetailsTest {
 
     @Test
     fun testHeaderRight() {
-        val pokemon = Pokemon(
-            id = 25,
-            name = "Pikachu",
-            types = arrayListOf(Types(1, Type("Electric"))),
-            sprites = Sprites()
-        )
-
         composeTestRule.setContent {
-            HeaderRight(pokemon = pokemon)
+            HeaderRight(pokemon = mockPokemon)
         }
 
         composeTestRule.onNodeWithText("25").assertExists()
@@ -83,15 +74,8 @@ class PokemonDetailsTest {
 
     @Test
     fun testHeaderLeft() {
-        val pokemon = Pokemon(
-            id = 25,
-            name = "Pikachu",
-            types = arrayListOf(Types(1, Type("Electric"))),
-            sprites = Sprites()
-        )
-
         composeTestRule.setContent {
-            HeaderLeft(pokemon = pokemon)
+            HeaderLeft(pokemon = mockPokemon)
         }
 
         composeTestRule.onNodeWithText("Pikachu").assertExists()
@@ -100,15 +84,8 @@ class PokemonDetailsTest {
 
     @Test
     fun testCardContent() {
-        val pokemon = Pokemon(
-            id = 25,
-            name = "Pikachu",
-            types = arrayListOf(Types(1, Type("Electric"))),
-            sprites = Sprites()
-        )
-
         composeTestRule.setContent {
-            CardContent(pokemon = pokemon)
+            CardContent(pokemon = mockPokemon)
         }
 
         composeTestRule.onNodeWithText("Abilities").assertExists()
@@ -119,18 +96,10 @@ class PokemonDetailsTest {
 
     @Test
     fun testPokemonImage() {
-        val pokemon = Pokemon(
-            id = 25,
-            name = "Pikachu",
-            types = arrayListOf(Types(1, Type("Electric"))),
-            sprites = Sprites(other = Other(dreamWorld = DreamWorld(frontDefault = "url")))
-        )
-
         composeTestRule.setContent {
-            PokemonImage(pokemon = pokemon)
+            PokemonImage(pokemon = mockPokemon)
         }
 
-        // Assuming LoadImageFromSvgUrl is a composable function displaying the image.
         composeTestRule.onNodeWithContentDescription("Pikachu").assertExists()
     }
 
