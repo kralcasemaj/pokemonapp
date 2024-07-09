@@ -11,16 +11,16 @@ import com.example.pokemonlist.model.pokemon.Types
 import com.example.pokemonlist.ui.viewmodel.PokemonViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertNotNull
-import junit.framework.Assert.assertNull
+import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
+import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -67,7 +67,7 @@ class PokemonViewModelTest {
 
     @Test
     fun testGetPokemonList_Error() = runTest {
-        val mockResponse = Response.error<PokemonList>(404, ResponseBody.create(null, ""))
+        val mockResponse = Response.error<PokemonList>(404, "".toResponseBody(null))
         coEvery { pokemonAPI.getPokemonList() } returns mockResponse
 
         viewModel.getPokemonList()
@@ -102,7 +102,7 @@ class PokemonViewModelTest {
     @Test
     fun testGetPokemonDetails_Error() = runTest {
         val mockPokemonListItem = PokemonListItem("Pikachu", "url")
-        val mockError = Response.error<Pokemon>(404, ResponseBody.create(null, ""))
+        val mockError = Response.error<Pokemon>(404, "".toResponseBody(null))
         coEvery { pokemonAPI.getPokemonDetails(any()) } returns mockError
 
         viewModel.getPokemonDetails(mockPokemonListItem)
