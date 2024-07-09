@@ -1,7 +1,7 @@
 package com.example.pokemonlist.api
 
-import com.example.pokemonlist.data.pokemon.Pokemon
-import com.example.pokemonlist.data.pokemon.PokemonList
+import com.example.pokemonlist.model.pokemon.Pokemon
+import com.example.pokemonlist.model.pokemon.PokemonList
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

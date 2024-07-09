@@ -6,6 +6,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
+import com.example.pokemonlist.ui.Root
+import com.example.pokemonlist.ui.lightThemeColors
+import com.example.pokemonlist.ui.themeTypography
 import com.github.zsoltk.compose.backpress.BackPressHandler
 import com.github.zsoltk.compose.backpress.LocalBackPressHandler
 import dagger.hilt.android.AndroidEntryPoint
