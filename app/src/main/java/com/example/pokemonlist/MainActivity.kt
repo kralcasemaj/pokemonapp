@@ -2,7 +2,6 @@ package com.example.pokemonlist
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
@@ -30,12 +29,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (!backPressHandler.handle()) {
-                    onBackPressedDispatcher.onBackPressed()
-                }
-            }
-        })
+    }
+
+    override fun onBackPressed() {
+        if (!backPressHandler.handle()) {
+            super.onBackPressed()
+        }
     }
 }
