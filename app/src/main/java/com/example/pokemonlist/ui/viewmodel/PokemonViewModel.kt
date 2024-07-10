@@ -70,6 +70,7 @@ class PokemonViewModel @Inject constructor(
                             pokemonListCache.clear()
                             pokemonListCache.addAll(it.results)
                             pokemonList.value = pokemonListCache
+                            pokemonListStateFlow.value = pokemonListCache
                             loadingState.value = State.Result
                         }
                     } else {
